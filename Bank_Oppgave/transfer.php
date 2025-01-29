@@ -7,33 +7,46 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Database connection
-$db_host = 'localhost';
-$db_user = 'root';
-$db_pass = '';
-$db_name = 'bank_db';
+require_once 'config/database.php';
+$db = new Database();
+$pdo = $db->getConnection();
 
 $error = '';
 $success = '';
 
 try {
-    $pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // Get sender's account info
-    $stmt = $pdo->prepare("SELECT a.*, u.name FROM accounts a JOIN users u ON a.user_id = u.id WHERE a.user_id = ?");
+    // Get user's accounts
+    $stmt = $pdo->prepare("
+        SELECT a.*, at.type_name as account_type 
+        FROM accounts a 
+        JOIN account_types at ON a.account_type_id = at.id
+        WHERE a.user_id = ? AND a.status = 'active'
+    ");
     $stmt->execute([$_SESSION['user_id']]);
-    $sender_account = $stmt->fetch();
+    $user_accounts = $stmt->fetchAll();
 
-    // Get list of other users for transfer
-    $stmt = $pdo->prepare("SELECT u.id, u.name, a.account_number FROM users u JOIN accounts a ON u.id = a.user_id WHERE u.id != ?");
+    if (empty($user_accounts)) {
+        header("Location: accounts.php?error=no_active_account");
+        exit();
+    }
+
+    // Get list of other users' accounts for transfer
+    $stmt = $pdo->prepare("
+        SELECT a.account_number, a.account_type_id, at.type_name, u.name 
+        FROM accounts a 
+        JOIN users u ON a.user_id = u.id 
+        JOIN account_types at ON a.account_type_id = at.id
+        WHERE a.user_id != ? AND a.status = 'active'
+        ORDER BY u.name ASC
+    ");
     $stmt->execute([$_SESSION['user_id']]);
-    $recipients = $stmt->fetchAll();
+    $recipient_accounts = $stmt->fetchAll();
 
     // Process transfer
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         try {
-            $recipient_account = $_POST['recipient'];
+            $from_account = $_POST['from_account'];
+            $to_account = $_POST['to_account'];
             $amount = floatval($_POST['amount']);
             $description = trim($_POST['description']);
 
@@ -42,46 +55,66 @@ try {
                 throw new Exception("Amount must be greater than zero");
             }
 
+            // Begin transaction
+            $pdo->beginTransaction();
+
+            // Get sender's account
+            $stmt = $pdo->prepare("
+                SELECT a.*, at.type_name 
+                FROM accounts a 
+                JOIN account_types at ON a.account_type_id = at.id 
+                WHERE a.account_number = ? AND a.status = 'active'
+                FOR UPDATE
+            ");
+            $stmt->execute([$from_account]);
+            $sender_account = $stmt->fetch();
+
+            if (!$sender_account) {
+                throw new Exception("Sender account not found or inactive");
+            }
+
             // Check if sender has enough balance
             if ($sender_account['balance'] < $amount) {
                 throw new Exception("Insufficient funds");
             }
 
-            // Begin transaction
-            $pdo->beginTransaction();
+            // Get recipient's account
+            $stmt = $pdo->prepare("
+                SELECT * FROM accounts WHERE account_number = ? AND status = 'active'
+                FOR UPDATE
+            ");
+            $stmt->execute([$to_account]);
+            $recipient_account = $stmt->fetch();
 
-            // Get recipient account
-            $stmt = $pdo->prepare("SELECT * FROM accounts WHERE account_number = ?");
-            $stmt->execute([$recipient_account]);
-            $recipient_data = $stmt->fetch();
-
-            if (!$recipient_data) {
-                throw new Exception("Recipient account not found");
+            if (!$recipient_account) {
+                throw new Exception("Recipient account not found or inactive");
             }
 
             // Update sender's balance
-            $stmt = $pdo->prepare("UPDATE accounts SET balance = balance - ? WHERE user_id = ?");
-            $stmt->execute([$amount, $_SESSION['user_id']]);
+            $stmt = $pdo->prepare("
+                UPDATE accounts 
+                SET balance = balance - ? 
+                WHERE account_number = ? AND status = 'active'
+            ");
+            $stmt->execute([$amount, $from_account]);
 
             // Update recipient's balance
-            $stmt = $pdo->prepare("UPDATE accounts SET balance = balance + ? WHERE account_number = ?");
-            $stmt->execute([$amount, $recipient_account]);
+            $stmt = $pdo->prepare("
+                UPDATE accounts 
+                SET balance = balance + ? 
+                WHERE account_number = ? AND status = 'active'
+            ");
+            $stmt->execute([$amount, $to_account]);
 
-            // Record transaction for sender (debit)
-            $stmt = $pdo->prepare("INSERT INTO transactions (user_id, amount, type, description) VALUES (?, ?, 'debit', ?)");
-            $stmt->execute([$_SESSION['user_id'], $amount, $description]);
-
-            // Record transaction for recipient (credit)
-            $stmt = $pdo->prepare("INSERT INTO transactions (user_id, amount, type, description) VALUES (?, ?, 'credit', ?)");
-            $stmt->execute([$recipient_data['user_id'], $amount, $description]);
+            // Record transaction
+            $stmt = $pdo->prepare("
+                INSERT INTO transactions (from_account, to_account, amount, type, description) 
+                VALUES (?, ?, ?, 'transfer', ?)
+            ");
+            $stmt->execute([$from_account, $to_account, $amount, $description]);
 
             $pdo->commit();
             $success = "Transfer successful!";
-
-            // Refresh sender's account info
-            $stmt = $pdo->prepare("SELECT a.*, u.name FROM accounts a JOIN users u ON a.user_id = u.id WHERE a.user_id = ?");
-            $stmt->execute([$_SESSION['user_id']]);
-            $sender_account = $stmt->fetch();
 
         } catch (Exception $e) {
             $pdo->rollBack();
@@ -99,11 +132,14 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfer Money - Banking System</title>
-    
+    <title>Transfer Money - Online Bank</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container mt-5">
+    <?php include 'includes/navbar.php'; ?>
+
+    <div class="container mt-4">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
@@ -111,10 +147,6 @@ try {
                         <h3 class="text-center">Transfer Money</h3>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-info">
-                            Your current balance: $<?php echo number_format($sender_account['balance'], 2); ?>
-                        </div>
-
                         <?php if ($error): ?>
                             <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
                         <?php endif; ?>
@@ -123,14 +155,31 @@ try {
                             <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
                         <?php endif; ?>
 
-                        <form method="POST" action="">
+                        <form method="POST" action="" id="transferForm">
                             <div class="mb-3">
-                                <label for="recipient" class="form-label">Recipient</label>
-                                <select class="form-select" id="recipient" name="recipient" required>
+                                <label for="from_account" class="form-label">From Account</label>
+                                <select class="form-select" id="from_account" name="from_account" required>
+                                    <option value="">Select account</option>
+                                    <?php foreach ($user_accounts as $account): ?>
+                                        <option value="<?php echo htmlspecialchars($account['account_number']); ?>" 
+                                                data-balance="<?php echo $account['balance']; ?>">
+                                            <?php echo ucfirst($account['account_type']) . ' - ' . 
+                                                      $account['account_number'] . ' ($' . 
+                                                      number_format($account['balance'], 2) . ')'; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="to_account" class="form-label">To Account</label>
+                                <select class="form-select" id="to_account" name="to_account" required>
                                     <option value="">Select recipient</option>
-                                    <?php foreach ($recipients as $recipient): ?>
-                                        <option value="<?php echo htmlspecialchars($recipient['account_number']); ?>">
-                                            <?php echo htmlspecialchars($recipient['name'] . ' (' . $recipient['account_number'] . ')'); ?>
+                                    <?php foreach ($recipient_accounts as $account): ?>
+                                        <option value="<?php echo htmlspecialchars($account['account_number']); ?>">
+                                            <?php echo htmlspecialchars($account['name'] . ' - ' . 
+                                                      ucfirst($account['type_name']) . ' (' . 
+                                                      $account['account_number'] . ')'); ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -138,12 +187,14 @@ try {
 
                             <div class="mb-3">
                                 <label for="amount" class="form-label">Amount ($)</label>
-                                <input type="number" step="0.01" min="0.01" class="form-control" id="amount" name="amount" required>
+                                <input type="number" step="0.01" min="0.01" class="form-control" 
+                                       id="amount" name="amount" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="description" class="form-label">Description</label>
-                                <input type="text" class="form-control" id="description" name="description" required>
+                                <input type="text" class="form-control" id="description" 
+                                       name="description" required>
                             </div>
 
                             <div class="d-grid gap-2">
@@ -158,5 +209,17 @@ try {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('transferForm').addEventListener('submit', function(e) {
+            const fromAccount = document.getElementById('from_account');
+            const amount = parseFloat(document.getElementById('amount').value);
+            const balance = parseFloat(fromAccount.options[fromAccount.selectedIndex].dataset.balance);
+            
+            if (amount > balance) {
+                e.preventDefault();
+                alert('Transfer amount cannot exceed your account balance.');
+            }
+        });
+    </script>
 </body>
 </html> 

@@ -13,6 +13,9 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS password_resets;
 DROP TABLE IF EXISTS remember_tokens;
 DROP TABLE IF EXISTS two_factor_auth;
+DROP TABLE IF EXISTS login_attempts;
+DROP TABLE IF EXISTS locked_accounts;
+DROP TABLE IF EXISTS email_verifications;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Create users table
@@ -24,6 +27,7 @@ CREATE TABLE users (
     phone VARCHAR(20),
     address TEXT,
     user_type ENUM('personal', 'business', 'admin') NOT NULL DEFAULT 'personal',
+    email_verified BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -107,6 +111,35 @@ CREATE TABLE two_factor_auth (
     user_id INT NOT NULL,
     secret_key VARCHAR(32) NOT NULL,
     is_enabled BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Add login attempts table
+CREATE TABLE login_attempts (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(100) NOT NULL,
+    ip_address VARCHAR(45) NOT NULL,
+    attempt_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_successful BOOLEAN DEFAULT false
+);
+
+-- Add locked_accounts table
+CREATE TABLE locked_accounts (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    locked_until DATETIME NOT NULL,
+    reason ENUM('failed_attempts', 'suspicious_activity', 'manual') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Add email verification table
+CREATE TABLE email_verifications (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    token VARCHAR(100) NOT NULL,
+    expires_at DATETIME NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

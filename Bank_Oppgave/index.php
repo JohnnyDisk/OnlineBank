@@ -19,7 +19,9 @@ $account_types = array(
 </head>
 <body>
     <a href="logout.php">Logout</a>
-    <h1>This is the index page</h1>
+    <a href="account.php">Account</a>
+    <a href="transfer.php">Transfer</a>
+    <h1>Online Bank</h1>
 
     <br>
     Hello, <?php echo $user_data['name']; ?>
@@ -27,6 +29,7 @@ $account_types = array(
     <h2>Accounts</h2>
     <table>
         <tr>
+            <th>Account Number</th>
             <th>Account Type</th>
             <th>Balance</th>
         </tr>
@@ -35,6 +38,7 @@ $account_types = array(
         $result = mysqli_query($con, $query);
         while($row = mysqli_fetch_assoc($result)){
             echo "<tr>";
+            echo "<td>" . format_account_number($row['account_number']) . "</td>";
             echo "<td>" . $account_types[$row['account_type']] . "</td>";
             echo "<td>" . $row['balance'] . "</td>";
             echo "</tr>";

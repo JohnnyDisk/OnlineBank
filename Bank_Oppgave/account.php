@@ -16,12 +16,23 @@ $account_types = array(
 if(isset($_POST['create_account'])) {
     $account_type = $_POST['account_type'];
     $user_id = $user_data['user_id'];
-    
-    $query = "INSERT INTO accounts (user_id, account_type, balance) VALUES ('$user_id', '$account_type', 0)";
-    if(mysqli_query($con, $query)){
-        echo "Account created successfully!";
+
+    // Check if the user already has 3 accounts of the selected type
+    $query = "SELECT COUNT(*) as count FROM accounts WHERE user_id = '$user_id' AND account_type = '$account_type'";
+    $result = mysqli_query($con, $query);
+    $row = mysqli_fetch_assoc($result);
+
+    if($row['count'] >= 2){
+        echo "You can only have a maximum of 2 $account_types[$account_type] accounts.";
     } else {
-        echo "Error: " . mysqli_error($con);
+        $account_number = bank_num(); // Generate a random 12-digit account number
+        
+        $query = "INSERT INTO accounts (account_number, user_id, account_type, balance) VALUES ('$account_number', '$user_id', '$account_type', 0)";
+        if(mysqli_query($con, $query)){
+            echo "Account created successfully!";
+        } else {
+            echo "Error: " . mysqli_error($con);
+        }
     }
 }
 ?>

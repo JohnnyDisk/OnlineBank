@@ -28,3 +28,15 @@ function random_num($length){
     }
     return (int)$text; // Ensure the result is an integer
 }
+
+function bank_num(){
+    $text = "";
+    for ($i = 0; $i < 12; $i++) { 
+        $text .= rand(0, 9);
+    }
+    return $text;
+}
+
+function format_account_number($account_number) {
+    return trim(chunk_split($account_number, 4, ' '));
+}

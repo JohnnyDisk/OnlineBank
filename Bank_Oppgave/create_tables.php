@@ -35,6 +35,7 @@ if (mysqli_num_rows($tableExists) == 0) {
     // SQL query to create the 'accounts' table
     $sql = "CREATE TABLE accounts (
         id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        account_number BIGINT NOT NULL UNIQUE,
         account_type ENUM('checking', 'savings', 'high_yield') NOT NULL,
         balance DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
         user_id BIGINT NOT NULL,

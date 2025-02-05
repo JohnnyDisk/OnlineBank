@@ -21,7 +21,7 @@ $account_types = array(
     <a href="logout.php">Logout</a>
     <a href="account.php">Account</a>
     <a href="transfer.php">Transfer</a>
-    <h1>Online Bank</h1>
+    <h1>Welcome to The Bank of Johnny</h1>
 
     <br>
     Hello, <?php echo $user_data['name']; ?>

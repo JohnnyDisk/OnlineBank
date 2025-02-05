@@ -16,6 +16,7 @@ if (mysqli_num_rows($tableExists) == 0) {
         telephone VARCHAR(20) COLLATE utf8mb4_0900_ai_ci NOT NULL,
         password VARCHAR(100) COLLATE utf8mb4_0900_ai_ci NOT NULL,
         is_company_account BOOLEAN NOT NULL DEFAULT FALSE,
+        is_admin BOOLEAN NOT NULL DEFAULT FALSE,
         date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     )";
 
@@ -39,6 +40,7 @@ if (mysqli_num_rows($tableExists) == 0) {
         account_type ENUM('checking', 'savings', 'high_yield') NOT NULL,
         balance DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
         user_id BIGINT NOT NULL,
+        is_freezed BOOLEAN NOT NULL DEFAULT FALSE,
         FOREIGN KEY (user_id) REFERENCES users(user_id)
     )";
 

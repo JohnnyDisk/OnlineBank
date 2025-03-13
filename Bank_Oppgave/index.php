@@ -19,8 +19,15 @@ $account_types = array(
 </head>
 <body>
     <a href="logout.php">Logout</a>
+    <a href="index.php">Main</a>
     <a href="account.php">Account</a>
     <a href="transfer.php">Transfer</a>
+
+    <?php
+    if ($user_data['is_admin']) {
+        echo '<a href="admin_panel.php">Admin Panel</a>';
+    }
+    ?><br><br>
     <h1>Welcome to The Bank of Johnny</h1>
 
     <br>
@@ -41,6 +48,9 @@ $account_types = array(
             echo "<td>" . format_account_number($row['account_number']) . "</td>";
             echo "<td>" . $account_types[$row['account_type']] . "</td>";
             echo "<td>" . $row['balance'] . "</td>";
+            if ($row['is_frozen']) {
+                echo "<td>Account is frozen</td>";
+            }
             echo "</tr>";
         }
         ?>

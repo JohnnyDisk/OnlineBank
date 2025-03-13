@@ -40,7 +40,7 @@ if (mysqli_num_rows($tableExists) == 0) {
         account_type ENUM('checking', 'savings', 'high_yield') NOT NULL,
         balance DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
         user_id BIGINT NOT NULL,
-        is_freezed BOOLEAN NOT NULL DEFAULT FALSE,
+        is_frozen BOOLEAN NOT NULL DEFAULT FALSE,
         FOREIGN KEY (user_id) REFERENCES users(user_id)
     )";
 

@@ -6,6 +6,10 @@ include('functions.php');
 
 $user_data = check_login($con);
 
+if (!isset($_SESSION['freeze_tokens'])) {
+    $_SESSION['freeze_tokens'] = array();
+}
+
 if (!$user_data['is_admin']) {
     header("Location: index.php");
     die;
@@ -17,8 +21,30 @@ $account_types = array(
     'high_yield' => 'High-Yield Account'
 );
 
-if (isset($_POST['freeze'])) {
-    echo "Account frozen!";
+if (isset($_POST['freeze_token'])) {
+    $account_number = $_SESSION['freeze_tokens'][$_POST['freeze_token']];
+    // Get the is_frozen value from the database
+    $query = "SELECT is_frozen FROM accounts WHERE account_number = '$account_number'";
+    $result = mysqli_query($con, $query);
+    $row = mysqli_fetch_assoc($result);
+
+    if ($row['is_frozen'] == 1) {
+        // Unfreeze the account
+        $query = "UPDATE accounts SET is_frozen = 0 WHERE account_number = '$account_number'";
+        if (mysqli_query($con, $query)) {
+            echo "Account unfrozen successfully!";
+        } else {
+            echo "Error: " . mysqli_error($con);
+        }
+    } elseif ($row['is_frozen'] == 0) {
+        // Freeze the account
+        $query = "UPDATE accounts SET is_frozen = 1 WHERE account_number = '$account_number'";
+        if (mysqli_query($con, $query)) {
+            echo "Account frozen successfully!";
+        } else {
+            echo "Error: " . mysqli_error($con);
+        }
+    }
 }
 
 ?>
@@ -29,6 +55,17 @@ if (isset($_POST['freeze'])) {
     <title>Admin Panel</title>
 </head>
 <body>
+<a href="logout.php">Logout</a>
+    <a href="index.php">Main</a>
+    <a href="account.php">Account</a>
+    <a href="transfer.php">Transfer</a>
+
+    <?php
+    if ($user_data['is_admin']) {
+        echo '<a href="admin_panel.php">Admin Panel</a>';
+    }
+    ?><br><br>
+    
     <h1>Admin Panel</h1>
     <h2>All Users</h2>
     <table border="1">
@@ -59,11 +96,19 @@ if (isset($_POST['freeze'])) {
                 echo "<table border='1'>";
                 echo "<tr><th>Account Number</th><th>Account Type</th><th>Balance</th><th>Freeze</th></tr>";
                 while($account = mysqli_fetch_assoc($account_result)){
+                    $freeze_token = bin2hex(random_bytes(16));
+                    $_SESSION['freeze_tokens'][$freeze_token] = $account['account_number'];
+                    
                     echo "<tr>";
                     echo "<td>" . format_account_number($account['account_number']) . "</td>";
                     echo "<td>" . $account_types[$account['account_type']] . "</td>";
                     echo "<td>" . $account['balance'] . "</td>";
-                    echo '<form method="POST"><td> <input type="submit" name="freeze" value="freeze" /> </td></form>';
+                    echo '<td>
+                    <form method="POST">
+                                <input type="hidden" name="freeze_token" value="' . $freeze_token . '" />
+                                <input type="submit" name="freeze" value="' . ($account['is_frozen'] ? 'unfreeze' : 'freeze') . '" />
+                            </form>
+                            </td>';
                     echo "</tr>";
                 }
                 echo "</table>";

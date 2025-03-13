@@ -13,8 +13,8 @@ $account_types = array(
 );
 
 if($_SERVER['REQUEST_METHOD'] == "POST"){
-    $from_account = str_replace(' ', '', $_POST['from_account']); // Remove spaces
-    $to_account_number = str_replace(' ', '', $_POST['to_account_number']); // Remove spaces
+    $from_account = $_POST['from_account'];
+    $to_account = $_POST['to_account'];
     $amount = $_POST['amount'];
 
     // Check if from account exists and belongs to the user
@@ -23,8 +23,22 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     if(mysqli_num_rows($result) > 0){
         $from_account_data = mysqli_fetch_assoc($result);
 
-        // Check if the recipient's account exists
-        $query = "SELECT * FROM accounts WHERE account_number = '$to_account_number' LIMIT 1";
+        $query = "SELECT * FROM accounts WHERE is_frozen = '1' AND account_number = '$from_account'";
+        $result = mysqli_query($con, $query);
+        if(mysqli_num_rows($result) > 0){
+            echo "Account is frozen!";
+            die;
+
+        } else {
+            $query = "SELECT * FROM accounts WHERE is_frozen = '1' AND account_number = '$to_account'";
+            $result = mysqli_query($con, $query);
+            if(mysqli_num_rows($result) > 0){
+                echo "Recipient account is frozen!";
+                die;
+            } else {
+
+        // Check if to account exists and belongs to the user
+        $query = "SELECT * FROM accounts WHERE account_number = '$to_account' AND user_id = '{$user_data['user_id']}'";
         $result = mysqli_query($con, $query);
         if(mysqli_num_rows($result) > 0){
             $to_account_data = mysqli_fetch_assoc($result);
@@ -37,7 +51,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
                 $query = "UPDATE accounts SET balance = '$new_from_balance' WHERE account_number = '$from_account'";
                 mysqli_query($con, $query);
 
-                $query = "UPDATE accounts SET balance = '$new_to_balance' WHERE account_number = '$to_account_number'";
+                $query = "UPDATE accounts SET balance = '$new_to_balance' WHERE account_number = '$to_account'";
                 mysqli_query($con, $query);
 
                 echo "Transfer successful!";
@@ -47,6 +61,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         } else {
             echo "Recipient account not found!";
         }
+    }
+}
     } else {
         echo "From account not found!";
     }
@@ -57,22 +73,22 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 <html>
 <head>
     <title>Transfer</title>
-    <style>
-        input[name="to_account_number"] {
-            letter-spacing: 1px;
-        }
-    </style>
-    <script>
-        function formatAccountNumber(input) {
-            let value = input.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || '';
-            input.value = formattedValue;
-        }
-    </script>
 </head>
 <body>
+<a href="logout.php">Logout</a>
+    <a href="index.php">Main</a>
+    <a href="account.php">Account</a>
+    <a href="transfer.php">Transfer</a>
+
+    <?php
+    if ($user_data['is_admin']) {
+        echo '<a href="admin_panel.php">Admin Panel</a>';
+    }
+    ?><br><br>
+
     <form method="post">
-        <select name="from_account">
+        <label for="from_account">From Account:</label>
+        <select name="from_account" id="from_account">
             <?php
             $query = "SELECT * FROM accounts WHERE user_id = '{$user_data['user_id']}'";
             $result = mysqli_query($con, $query);
@@ -81,7 +97,18 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             }
             ?>
         </select>
-        <input type="text" name="to_account_number" placeholder="Recipient's Account Number" maxlength="19" oninput="formatAccountNumber(this)" required>
+        <br><br>
+        <label for="to_account">To Account:</label>
+        <select name="to_account" id="to_account">
+            <?php
+            $query = "SELECT * FROM accounts WHERE user_id = '{$user_data['user_id']}'";
+            $result = mysqli_query($con, $query);
+            while($row = mysqli_fetch_assoc($result)){
+                echo "<option value='{$row['account_number']}'>" . $account_types[$row['account_type']] . " - " . format_account_number($row['account_number']) . "</option>";
+            }
+            ?>
+        </select>
+        <br><br>
         <input type="number" name="amount" placeholder="Amount" required>
         <input type="submit" value="Transfer">
     </form>

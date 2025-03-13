@@ -37,6 +37,17 @@ if(isset($_POST['create_account'])) {
 }
 ?>
 
+    <a href="logout.php">Logout</a>
+    <a href="index.php">Main</a>
+    <a href="account.php">Account</a>
+    <a href="transfer.php">Transfer</a>
+
+    <?php
+    if ($user_data['is_admin']) {
+        echo '<a href="admin_panel.php">Admin Panel</a>';
+    }
+    ?><br><br>
+
 <form method="post">
     <select name="account_type">
         <?php foreach($account_types as $key => $value): ?>

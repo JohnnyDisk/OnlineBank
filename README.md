@@ -45,11 +45,11 @@
 
 ## ⚙️ Krav og Forutsetninger
 
-- PHP versjon 7.4 eller høyere
-- MySQL 5.7 eller nyere
-- Nettserver (f.eks. Apache, Nginx) med støtte for PHP
-- Aktivert MySQLi-utvidelse i PHP
-- Enkel forståelse for hvordan man konfigurerer PHP- og MySQL-miljø
+- PHP versjon 7.4 eller høyere  
+- MySQL 5.7 eller nyere  
+- Nettserver (f.eks. Apache, Nginx) med støtte for PHP  
+- Aktivert MySQLi-utvidelse i PHP  
+- Enkel forståelse for hvordan man konfigurerer PHP- og MySQL-miljø  
 
 ---
 
@@ -137,21 +137,21 @@ Klikk på "Logg ut" for å avslutte økten trygt.
 
 ## 🔐 Sikkerhetsfunksjoner
 
-- Passord lagres kryptert med `password_hash()`
-- PHP-økter beskytter innlogget tilstand
-- Validering på alle skjemaer
-- Frosne kontoer kan ikke brukes til overføringer
-- Bruker-ID og kontonummer genereres automatisk og unikt
+- Passord lagres kryptert med `password_hash()`  
+- PHP-økter beskytter innlogget tilstand  
+- Validering på alle skjemaer  
+- Frosne kontoer kan ikke brukes til overføringer  
+- Bruker-ID og kontonummer genereres automatisk og unikt  
 
 ---
 
 ## 🛠 Vedlikehold og Videreutvikling
 
-- Strukturert og modulær kodebase
-- Lett å bygge ut med nye kontotyper eller transaksjonstyper
-- Admin-panel kan utvides med flere funksjoner (f.eks. kontohistorikk)
-- Anbefalt: Bruk `prepared statements` i stedet for manuell escaping
-- Implementer CSRF-beskyttelse for ekstra sikkerhet
+- Strukturert og modulær kodebase  
+- Lett å bygge ut med nye kontotyper eller transaksjonstyper  
+- Admin-panel kan utvides med flere funksjoner (f.eks. kontohistorikk)  
+- Anbefalt: Bruk `prepared statements` i stedet for manuell escaping  
+- Implementer CSRF-beskyttelse for ekstra sikkerhet  
 
 ---
 
@@ -163,6 +163,29 @@ Klikk på "Logg ut" for å avslutte økten trygt.
 | Nettleseren viser feil ved innlasting av sider | Sjekk PHP-feilloggen og filplasseringer |
 | Tabeller mangler | Sørg for at `create_tables.php` er kjørt |
 | Sesjoner fungerer ikke | Aktiver session i `php.ini` og sjekk at nettleseren tillater cookies |
+
+---
+
+## ❔ FAQ – Ofte stilte spørsmål
+
+### Hvorfor får jeg feilmelding ved innlogging?
+Sjekk at e-post og passord er korrekt, og at brukeren faktisk finnes i databasen. Pass på at `password_verify()` brukes riktig.
+
+### Kan jeg overføre til andres konto?
+Nei. Systemet tillater kun overføring mellom dine egne kontoer for å forenkle sikkerheten.
+
+### Hvordan vet jeg om kontoen min er frosset?
+Det vises i dashbordet under kontodetaljene. Frosne kontoer kan ikke brukes til overføringer.
+
+### Hvordan lager jeg en admin-bruker?
+Du må manuelt sette `is_admin = 1` på en bruker i databasen via SQL:
+
+```sql
+UPDATE users SET is_admin = 1 WHERE id = 'bruker_id';
+```
+
+### Kan jeg bruke dette prosjektet til noe kommersielt?
+Nei. Dette prosjektet er kun ment for læring og utdanning.
 
 ---
 

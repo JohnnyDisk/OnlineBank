@@ -38,7 +38,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             } else {
 
         // Check if to account exists and belongs to the user
-        $query = "SELECT * FROM accounts WHERE account_number = '$to_account' AND user_id = '{$user_data['user_id']}'";
+        $query = "SELECT * FROM accounts WHERE account_number = '$to_account'";
         $result = mysqli_query($con, $query);
         if(mysqli_num_rows($result) > 0){
             $to_account_data = mysqli_fetch_assoc($result);
@@ -75,7 +75,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     <title>Transfer</title>
 </head>
 <body>
-    <a href="logout.php">Logout</a>
+<a href="logout.php">Logout</a>
     <a href="index.php">Main</a>
     <a href="account.php">Account</a>
     <a href="transfer.php">Transfer</a>
@@ -99,15 +99,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         </select>
         <br><br>
         <label for="to_account">To Account:</label>
-        <select name="to_account" id="to_account">
-            <?php
-            $query = "SELECT * FROM accounts WHERE user_id = '{$user_data['user_id']}'";
-            $result = mysqli_query($con, $query);
-            while($row = mysqli_fetch_assoc($result)){
-                echo "<option value='{$row['account_number']}'>" . $account_types[$row['account_type']] . " - " . format_account_number($row['account_number']) . "</option>";
-            }
-            ?>
-        </select>
+        <input name="to_account" id="to_account">
+
+        </input>
         <br><br>
         <input type="number" name="amount" placeholder="Amount" required>
         <input type="submit" value="Transfer">

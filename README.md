@@ -88,27 +88,27 @@ Dette prosjektet er laget for å lære webutvikling med fokus på backend og sik
 
 ## 🖱️ Brukerveiledning
 
-### Registrering
+### 🔐 Registrering
 1. Gå til `signup.php`
 2. Fyll inn informasjon
 3. Klikk registrer
 
-### Innlogging
+### 🔑 Innlogging
 1. Gå til `login.php`
 2. Skriv inn e-post og passord
 3. Klikk logg inn
 
-### Dashboard
+### 📊 Dashboard
 - Visning av alle kontoer
 - Tilgang til overføring og admin (om aktivert)
 
-### Overføring
+### 💸 Overføring
 1. Gå til `transfer.php`
 2. Velg fra-konto og til-konto
 3. Skriv inn beløp
 4. Klikk send
 
-### Logg ut
+### 🚪 Logg ut
 - Klikk på "logg ut" for å avslutte sesjonen
 
 ---
@@ -133,32 +133,37 @@ Dette prosjektet er laget for å lære webutvikling med fokus på backend og sik
 ---
 
 ## 🛠️ Feilsøking
-- Får du feilmelding? Sjekk `php_error.log`
-- Kontroller databaseforbindelse i `connection.php`
-- Sjekk at `create_tables.php` har kjørt riktig
-- Sørg for at sessions er aktivert i `php.ini`
-- Prøv å sette `display_errors = On` i `php.ini` under utvikling
+
+| Problem | Løsning |
+|--------|----------|
+| Får ikke koblet til databasen | Sjekk innstillinger i `connection.php` og at MySQL kjører |
+| Nettleseren viser feil ved innlasting av sider | Sjekk PHP-feilloggen og filplasseringer |
+| Tabeller mangler | Sørg for at `create_tables.php` er kjørt |
+| Sesjoner fungerer ikke | Aktiver session i `php.ini` og sjekk at nettleseren tillater cookies |
 
 ---
 
 ## ❓ FAQ
 
-**Spørsmål:** Kan jeg overføre penger mellom kontoene mine?  
+### **Spørsmål:** Kan jeg overføre penger mellom kontoene mine?  
 **Svar:** Ja! Dette er fullt implementert og fungerer. Bare gå til `transfer.php`.
 
-**Spørsmål:** Kan jeg ha flere kontoer?  
+### **Spørsmål:** Kan jeg ha flere kontoer?  
 **Svar:** Ja, du kan ha brukskonto, sparekonto og høyrentekonto samtidig.
 
-**Spørsmål:** Er passordene mine trygge?  
+### **Spørsmål:** Er passordene mine trygge?  
 **Svar:** Ja, passordene lagres med `password_hash()` og er ikke lesbare i databasen.
 
-**Spørsmål:** Hva skjer hvis jeg prøver å overføre penger fra en frossen konto?  
+### **Spørsmål:** Hva skjer hvis jeg prøver å overføre penger fra en frossen konto?  
 **Svar:** Systemet blokkerer slike transaksjoner automatisk.
 
-**Spørsmål:** Hvordan blir jeg admin?  
+### **Spørsmål:** Hvordan blir jeg admin?  
 **Svar:** Det må settes manuelt i databasen per nå, via `is_admin`-feltet.
+```sql
+UPDATE users SET is_admin = 1 WHERE id = 'bruker_id';
+```
 
-**Spørsmål:** Er prosjektet tilgjengelig på GitHub?  
+### **Spørsmål:** Er prosjektet tilgjengelig på GitHub?  
 **Svar:** Ja, hele koden er åpen kildekode og ligger på GitHub.
 
 ---

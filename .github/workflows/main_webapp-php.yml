@@ -41,7 +41,7 @@ jobs:
         with:
           name: php-app
           path: release.zip
-          package: ./OnlineBank
+          package: ./Bank_Oppgave
 
   deploy:
     runs-on: ubuntu-latest

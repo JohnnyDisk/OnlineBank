@@ -15,19 +15,27 @@ $account_types = array(
 
 <html>
 <head>
-    <title>Index</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.9.0/css/foundation.min.css" integrity="sha512-HU1oKdPcZ02o+Wxs7Mm07gVjKbPAn3i0pyud1gi3nAFTVYAVLqe+de607xHer+p9B2I9069l3nCsWFOdID/cUw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="style.css">
+<title>Index</title>
 </head>
 <body>
+    <div class="navbar">
     <a href="logout.php">Logout</a>
     <a href="index.php">Main</a>
     <a href="account.php">Account</a>
     <a href="transfer.php">Transfer</a>
+    
 
     <?php
     if ($user_data['is_admin']) {
-        echo '<a href="admin_panel.php">Admin Panel</a>';
+        echo '<a href="admin_panel.php">Admin Panel</a></div>';
+    } else {
+        echo '</div>';
     }
-    ?><br><br>
+
+    ?>
+    <br><br>
     <h1>Welcome to The Bank of Johnny</h1>
 
     <br>

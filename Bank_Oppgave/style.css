@@ -1,0 +1,13 @@
+.navbar {
+    background-color: #e4e5ff;
+    color: #ffffff;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form {
+    width: 25%;
+    
+}

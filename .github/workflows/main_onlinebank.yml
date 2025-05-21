@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy PHP app to Azure Web App - onlinebank
 
 on:
@@ -13,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -23,18 +20,22 @@ jobs:
         with:
           php-version: '8.4'
 
-      - name: Check if composer.json exists
+      - name: Check if composer.json exists in subfolder
         id: check_files
         uses: andstor/file-existence-action@v1
         with:
-          files: 'composer.json'
+          files: 'Bank_Oppgave/composer.json'
 
       - name: Run composer install if composer.json exists
         if: steps.check_files.outputs.files_exists == 'true'
-        run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
+        run: |
+          cd Bank_Oppgave
+          composer validate --no-check-publish
+          composer install --prefer-dist --no-progress
+          cd ..
 
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+      - name: Zip Bank_Oppgave folder for deployment
+        run: cd Bank_Oppgave && zip -r ../release.zip . && cd ..
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -49,8 +50,8 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
@@ -60,7 +61,7 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -68,11 +69,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_B416801806194C47BD2CA2AB7B1CE560 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_530D14C5AA0E458087034A71757F7736 }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'onlinebank'
           slot-name: 'Production'
           package: .
-          

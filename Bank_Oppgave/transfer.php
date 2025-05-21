@@ -11,7 +11,7 @@ $account_types = array(
 );
 
 $message = "";
-    
+
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $transfer_type = $_POST['transfer_type'];
     $from_account = $_POST['from_account'];
@@ -81,6 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     <a href="index.php">Main</a>
     <a href="account.php">Account</a>
     <a href="transfer.php">Transfer</a>
+    <a href="faq.php">FAQ</a>
     <?php
     if ($user_data['is_admin']) {
         echo '<a href="admin_panel.php">Admin Panel</a></div>';

@@ -70,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 <body>
     <div class="navbar">
         <a href="login.php">Login</a>
+        <a href="faq.php">FAQ</a>
     </div>
     
     <br><br>

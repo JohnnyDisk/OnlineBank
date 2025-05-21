@@ -25,6 +25,7 @@ $account_types = array(
     <a href="index.php">Main</a>
     <a href="account.php">Account</a>
     <a href="transfer.php">Transfer</a>
+    <a href="faq.php">FAQ</a>
     
 
     <?php

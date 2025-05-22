@@ -10,7 +10,7 @@ $ssl_cert = __DIR__ . "/certs/azure.pem";
 
 // Create a connection using SSL
 $con = mysqli_init();
-mysqli_ssl_set($conn, NULL, NULL, $ssl_cert, NULL, NULL);
+mysqli_ssl_set($con, NULL, NULL, $ssl_cert, NULL, NULL);
 mysqli_real_connect($con, $dbhost, $dbuser, $dbpass, $dbname, 3306, NULL, MYSQLI_CLIENT_SSL);
 
 if (mysqli_connect_errno()) {

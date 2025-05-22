@@ -27,7 +27,7 @@ if(isset($_POST['create_account'])) {
     } else {
         $account_number = bank_num(); // Generate a random 12-digit account number
         
-        $query = "INSERT INTO accounts (account_number, user_id, account_type, balance) VALUES ('$account_number', '$user_id', '$account_type', 0)";
+        $query = "INSERT INTO accounts (account_number, user_id, account_type, balance) VALUES ($account_number, $user_id, '$account_type', 0)";
         if(mysqli_query($con, $query)){
             echo "Account created successfully!";
         } else {

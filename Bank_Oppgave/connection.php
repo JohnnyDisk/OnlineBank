@@ -3,7 +3,7 @@
 # Azure
 
 $dbhost = "onlinebank-server.mysql.database.azure.com";
-$dbuser = "JohnnyDisk@onlinebank-server";
+$dbuser = "JohnnyDisk";
 $dbpass = "IMKuben1337!";
 $dbname = "onlinebank-database";
 $ssl_cert = __DIR__ . "/certs/azure.pem";

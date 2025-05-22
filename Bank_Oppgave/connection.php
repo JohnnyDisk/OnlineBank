@@ -1,9 +1,20 @@
 <?php
 
-$dbhost = "localhost";
-$dbuser = "root";
+# Azure
+
+$dbhost = "onlinebank-server.mysql.database.azure.com";
+$dbuser = "xxxjmqavft";
 $dbpass = "";
-$dbname = "login_sample_db";
+$dbname = "onlinebank-database";
+
+# Localhost
+
+# $dbhost = "localhost";
+# $dbuser = "root";
+# $dbpass = "";
+# $dbname = "login_sample_db";
+
+# Raspberry Pi
 
 # $dbhost = "10.2.3.39";
 # $dbuser = "Admin";

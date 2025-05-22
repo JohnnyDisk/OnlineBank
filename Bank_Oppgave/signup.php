@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     $safe_name = mysqli_real_escape_string($con, $name);
                     $safe_telephone = mysqli_real_escape_string($con, $telephone);
                     $query = "INSERT INTO users (user_id, name, email, telephone, password, is_company_account) 
-                              VALUES ('$user_id', '$safe_name', '$safe_email', '$safe_telephone', '$hashed_password', '$is_company_account')";
+                              VALUES ($user_id, '$safe_name', '$safe_email', '$safe_telephone', '$hashed_password', $is_company_account)";
                     if (mysqli_query($con, $query)) {
                         header("Location: login.php");
                         die;

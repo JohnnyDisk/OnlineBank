@@ -15,8 +15,6 @@ mysqli_real_connect($conn, $dbhost, $dbuser, $dbpass, $dbname, 3306, NULL, MYSQL
 
 if (mysqli_connect_errno()) {
     die("Failed to connect: " . mysqli_connect_error());
-} else {
-    echo "Connected with SSL!";
 }
 
 # Localhost

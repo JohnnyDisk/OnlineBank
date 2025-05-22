@@ -3,8 +3,8 @@
 # Azure
 
 $dbhost = "onlinebank-server.mysql.database.azure.com";
-$dbuser = "xxxjmqavft";
-$dbpass = "";
+$dbuser = "JohnnyDisk";
+$dbpass = "IMKuben1337!";
 $dbname = "onlinebank-database";
 
 # Localhost

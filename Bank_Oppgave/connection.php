@@ -6,7 +6,7 @@ $dbhost = "onlinebank-server.mysql.database.azure.com";
 $dbuser = "JohnnyDisk";
 $dbpass = "IMKuben1337!";
 $dbname = "onlinebank-database";
-$ssl_cert = __DIR__ . "/certs/azure-ca.pem";
+$ssl_cert = __DIR__ . "/certs/azure.pem";
 
 // Create a connection using SSL
 $conn = mysqli_init();

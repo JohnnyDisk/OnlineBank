@@ -26,10 +26,10 @@
 
 # Raspberry Pi
 
-$dbhost = "10.2.3.39";
-$dbuser = "Admin";
-$dbpass = "IMKuben1337!";
-$dbname = "Bank_DB";
+$dbhost = "localhost";
+$dbuser = "johnny";
+$dbpass = "disk123";
+$dbname = "online_bank";
 
 if(!$con = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname))
 {

@@ -66,6 +66,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     <title>Signup</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.9.0/css/foundation.min.css" integrity="sha512-HU1oKdPcZ02o+Wxs7Mm07gVjKbPAn3i0pyud1gi3nAFTVYAVLqe+de607xHer+p9B2I9069l3nCsWFOdID/cUw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="style.css">
+    <style type="text/css">
+    #id{
+        margin-left: 40%;
+    }
+</style>
 </head>
 <body>
     <div class="navbar">

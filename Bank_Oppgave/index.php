@@ -66,9 +66,3 @@ $account_types = array(
     </table>
 </body>
 </html>
-
-<style>
-    #id{
-        margin-left: 40%;
-    }
-</style>

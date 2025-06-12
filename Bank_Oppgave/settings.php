@@ -12,7 +12,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 
     $safe_name = mysqli_escape_string($con, $new_name);
     if(!empty($new_name) && !is_numeric($new_name)){
-        $query = "UPDATE users SET name = '$safe_name' WHERE user_id = '$user_id";
+        $query = "UPDATE users SET name = '$safe_name' WHERE user_id = '$user_id'";
         if(mysqli_query($con, $query)){
             echo "name change successfully";
         } else {

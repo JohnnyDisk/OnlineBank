@@ -7,6 +7,7 @@ include('functions.php');
 $user_data = check_login($con);
 
 if($_SERVER['REQUEST_METHOD'] == "post"){
+    echo "test";
     $new_name = $_POST['name'];
     $user_id = $user_data['user_id'];
 

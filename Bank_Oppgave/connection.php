@@ -31,6 +31,7 @@ $dbuser = "johnny";
 $dbpass = "disk123";
 $dbname = "online_bank";
 
+$con = mysqli_init();
 if(!$con = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname))
 {
     die("failed to connect!");
